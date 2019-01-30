@@ -18,6 +18,8 @@ bounding_box_t a,b;
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
 
+float x = 0,y = 0,z = 0;
+
 Timer t60(1.0 / 60);
 
 /* Render the scene with openGL */
@@ -31,11 +33,14 @@ void draw() {
     glUseProgram (programID);
 
     // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye ( 5*cos(camera_rotation_angle*M_PI/180.0f), 0, 5*sin(camera_rotation_angle*M_PI/180.0f) );
+    // glm::vec3 eye ( 5*cos(camera_rotation_angle*M_PI/180.0f), 0, 5*sin(camera_rotation_angle*M_PI/180.0f) );
+    glm::vec3 eye (x,y,z);
     // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target (0, 0, 0);
+    // glm::vec3 target (0, 0, 0);
+    glm::vec3 target (ball1.position.x, ball1.position.y, 0);
+
     // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
-    glm::vec3 up (0, 1, 0);
+    glm::vec3 up (0, 0, 1);
 
     // Compute Camera matrix (view)
     Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
@@ -43,6 +48,7 @@ void draw() {
     // Matrices.view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Fixed camera for 2D (ortho) in XY plane
 
     // Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
+    Matrices.projection = glm::perspective(glm::radians(45.0f), 4.0f/3.0f, 0.1f, 100.f);
     // Don't change unless you are sure!!
     glm::mat4 VP = Matrices.projection * Matrices.view;
 
@@ -59,8 +65,26 @@ void draw() {
 void tick_input(GLFWwindow *window) {
     int left  = glfwGetKey(window, GLFW_KEY_LEFT);
     int right = glfwGetKey(window, GLFW_KEY_RIGHT);
+    int view_1 = glfwGetKey(window, GLFW_KEY_1);
+    int view_2 = glfwGetKey(window, GLFW_KEY_2);
+    int view_3 = glfwGetKey(window, GLFW_KEY_3);
     if (left) {
         // Do something
+    }
+    if(view_1) {
+        // x = -5;
+        x = 0;
+        y = 0;
+        z = 10;
+    }
+    if(view_2) {
+        y = -10;
+        x = -10;
+        // z = -5;
+    }
+    if(view_3) {
+        x = ball2.position.x;
+        y = ball2.position.y;
     }
 }
 
@@ -80,7 +104,7 @@ void tick_elements() {
       ball1.speed *= -1;
       ball2.speed *= -1;
     }
-    // camera_rotation_angle += 1;
+    camera_rotation_angle += 1;
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -89,7 +113,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    ball1       = Ball(2, 3, COLOR_RED);
+    ball1       = Ball(2,  3, COLOR_RED);
     ball2       = Ball(2, -3, COLOR_GREEN);
     ball2.speed *= -1;
 
